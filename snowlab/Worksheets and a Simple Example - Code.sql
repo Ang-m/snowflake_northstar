@@ -1,5 +1,7 @@
+---> set the Role
 USE ROLE accountadmin;
 
+---> set the Warehouse
 USE WAREHOUSE compute_wh;
 
 ---> create the Tasty Bytes Database
@@ -24,6 +26,9 @@ CREATE OR REPLACE TABLE tasty_bytes_sample_data.raw_pos.menu
    menu_item_health_metrics_obj VARIANT
 );
 
+---> confirm the empty Menu table exists
+SELECT * FROM tasty_bytes_sample_data.raw_pos.menu;
+
 ---> create the Stage referencing the Blob location and CSV File Format
 CREATE OR REPLACE STAGE tasty_bytes_sample_data.public.blob_stage
 url = 's3://sfquickstarts/tastybytes/'
@@ -35,3 +40,27 @@ LIST @tasty_bytes_sample_data.public.blob_stage/raw_pos/menu/;
 ---> copy the Menu file into the Menu table
 COPY INTO tasty_bytes_sample_data.raw_pos.menu
 FROM @tasty_bytes_sample_data.public.blob_stage/raw_pos/menu/;
+
+---> how many rows are in the table?
+SELECT COUNT(*) AS row_count FROM tasty_bytes_sample_data.raw_pos.menu;
+
+---> what do the top 10 rows look like?
+SELECT TOP 10 * FROM tasty_bytes_sample_data.raw_pos.menu;
+
+SELECT TRUCK_BRAND_NAME, COUNT(*)
+FROM tasty_bytes_sample_data.raw_pos.menu
+GROUP BY 1
+ORDER BY 2 DESC;
+SELECT
+   TRUCK_BRAND_NAME,
+   MENU_TYPE,
+   COUNT(*)
+FROM tasty_bytes_sample_data.raw_pos.menu
+GROUP BY 1,2
+ORDER BY 3 DESC;
+
+--assignment 1 questions
+--solution-1---
+SELECT COUNT(*) FROM tasty_bytes_sample_data.raw_pos.menu WHERE ITEM_CATEGORY = 'Snack' AND ITEM_SUBCATEGORY = 'Warm Option';
+--solution-2--
+SELECT ITEM_SUBCATEGORY, MAX(SALE_PRICE_USD) FROM tasty_bytes_sample_data.raw_pos.menu GROUP BY 1 ORDER BY 2 DESC;
